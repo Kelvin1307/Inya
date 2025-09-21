@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, Flask, request, jsonify
 
 app = Flask(__name__)
 msg_bp = Blueprint("msg_bp", __name__)
