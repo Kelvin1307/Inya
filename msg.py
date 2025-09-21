@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-
+msg_bp = Blueprint("msg_bp", __name__)
 @app.route('/send-sms', methods=['POST'])
 def send_sms():
     data = request.json
