@@ -5,7 +5,6 @@ from policy_parser import policy_bp
 
 app = Flask(__name__)
 
-# Register all Blueprints
 app.register_blueprint(sentiment_bp)
 app.register_blueprint(msg_bp)
 app.register_blueprint(policy_bp)
