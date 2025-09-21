@@ -4,7 +4,7 @@ import re
 import os
 
 app = Flask(__name__)
-
+policy_bp = Blueprint("policy_bp", __name__)
 def extract_policy_data(pdf_path):
     reader = PdfReader(pdf_path)
     text = ""
