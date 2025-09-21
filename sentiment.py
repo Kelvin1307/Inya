@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, request, jsonify, Blueprint
+from flask import Flask, Blueprint, request, jsonify
 from textblob import TextBlob
 
 app = Flask(__name__)
