@@ -1,38 +1,50 @@
 from flask import Flask, request, jsonify
 from PyPDF2 import PdfReader
 import re
+import os
 
 app = Flask(__name__)
+
+def extract_policy_data(pdf_path):
+    reader = PdfReader(pdf_path)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() + "\n"
+
+    # Regex patterns for common fields
+    patterns = {
+        "policy_number": r"(?:Policy\s*Number|Policy\s*No\.?)\s*[:\-]?\s*([A-Z0-9\-]+)",
+        "policy_type": r"(?:Policy\s*Type)\s*[:\-]?\s*([A-Za-z ]+)",
+        "insurer_name": r"(?:Insurer|Company)\s*[:\-]?\s*([A-Za-z &]+)",
+        "customer_name": r"(?:Customer\s*Name|Proposer)\s*[:\-]?\s*([A-Za-z ]+)",
+        "customer_contact": r"(?:Mobile|Phone|Contact)\s*[:\-]?\s*(\+?\d{7,15})",
+        "registration_number": r"(?:Registration\s*Number|Regn\. No)\s*[:\-]?\s*([A-Z0-9\-]+)",
+        "expiry_date": r"(?:Expiry\s*Date|Valid\s*Till)\s*[:\-]?\s*([0-9]{2}[-/][0-9]{2}[-/][0-9]{4})",
+        "premium_amount": r"(?:Premium\s*Amount|Total\s*Premium)\s*[:\-₹]?\s*([\d,]+)"
+    }
+
+    extracted = {}
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            extracted[key] = match.group(1).strip()
+
+    return extracted
+
 
 @app.route('/v1/policy/parse', methods=['POST'])
 def parse_policy():
     file_url = request.json.get('file_url')
-    
-    # For simplicity, mock reading PDF by using a fixed local file
-    # (In real solution, download the file from file_url or accept file upload)
-    
-    sample_data = {
-        "policy_number": "AB123456789",
-        "policy_type": "Motor Comprehensive",
-        "insurer_name": "Sample Insurance Co.",
-        "customer_name": "Riya Sharma",
-        "customer_contact": "+91-90000-00000",
-        "asset_details": {
-            "make": "Maruti",
-            "model": "Baleno",
-            "year": 2021,
-            "registration_number": "KA01AB1234"
-        },
-        "coverage_summary": ["OD", "Third Party", "PA cover"],
-        "expiry_date": "2025-10-15",
-        "premium_amount": 12999,
-        "no_claim_bonus_percent": 25,
-        "last_payment_date": "2024-10-10",
-        "eligible_upsell": ["Zero Depreciation", "Roadside Assistance", "Return to Invoice"],
-        "payment_link": "https://pay.example.com/renew123"
-    }
-    
-    return jsonify(sample_data)
+
+    # Expecting local path for now
+    if not file_url or not os.path.exists(file_url):
+        return jsonify({"error": "PDF file not found"}), 400
+
+    data = extract_policy_data(file_url)
+
+    return jsonify(data)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
