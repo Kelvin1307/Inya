@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from textblob import TextBlob
 
 app = Flask(__name__)
-
+sentiment_bp = Blueprint("sentiment_bp", __name__)
 def analyze_sentiment(text):
     """
     Analyze sentiment of text.
