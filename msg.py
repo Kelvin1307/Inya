@@ -1,20 +1,42 @@
-from flask import Blueprint, Flask, request, jsonify
+from flask import Blueprint, request, jsonify
+from twilio.rest import Client
+import os
 
-app = Flask(__name__)
 msg_bp = Blueprint("msg_bp", __name__)
-@app.route('/send-sms', methods=['POST'])
+
+# Load credentials from environment variables
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
+# Initialize Twilio client
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+@msg_bp.route("/send-sms", methods=["POST"])
 def send_sms():
-    data = request.json
-    phone = data.get("to")
-    text = data.get("body")
+    try:
+        data = request.get_json()
+        phone = data.get("to")
+        text = data.get("body")
 
-    # Instead of real SMS, just return mock response
-    response = {
-        "status": "sent (mock)",
-        "to": phone,
-        "message": text
-    }
-    return jsonify(response)
+        if not phone or not text:
+            return jsonify({"error": "Missing 'to' or 'body'"}), 400
 
-if __name__ == "__main__":
-    app.run(debug=True)
+        # Send SMS
+        message = client.messages.create(
+            body=text,
+            from_=TWILIO_PHONE_NUMBER,
+            to=phone
+        )
+
+        # Respond with message SID
+        return jsonify({
+            "status": "sent",
+            "sid": message.sid,
+            "to": phone,
+            "message": text
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
