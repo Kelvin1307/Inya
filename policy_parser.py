@@ -30,7 +30,10 @@ def extract_policy_data(pdf_path):
             extracted[key] = match.group(1).strip()
 
     return extracted
-
+    
+def log_action(action, detail):
+    masked = mask_pii(str(detail))
+    print(f"{action}: {masked}")
 
 @app.route('/v1/policy/parse', methods=['POST'])
 def parse_policy():
@@ -41,6 +44,7 @@ def parse_policy():
         return jsonify({"error": "PDF file not found"}), 400
 
     data = extract_policy_data(file_url)
+    log_action("policy_parsed", data)
 
     return jsonify(data)
 
