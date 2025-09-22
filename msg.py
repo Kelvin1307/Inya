@@ -32,6 +32,10 @@ def send_sms():
             from_=TWILIO_PHONE_NUMBER,
             to=phone
         )
+        log_sms_event({"status": "sent",
+            "sid": message.sid,
+            "to": phone,
+            "message": text})
 
         # Respond with message SID
         return jsonify({
