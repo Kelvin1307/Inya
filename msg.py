@@ -12,6 +12,10 @@ TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 # Initialize Twilio client
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
+def log_sms_event(action, detail):
+    masked = mask_pii(str(detail))
+    print(f"{action}: {masked}")
+    
 @msg_bp.route("/send-sms", methods=["POST"])
 def send_sms():
     try:
