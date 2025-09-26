@@ -5,7 +5,7 @@ from policy_parser import policy_bp
 app = Flask(__name__)
 
 # Register all Blueprints
-app.register_blueprint(sentiment_bp)
+app.register_blueprint(sentiment_bp, url_prefix='/v2/senti')
 app.register_blueprint(policy_bp, url_prefix='/v1/policy')
 
 if __name__ == "__main__":
