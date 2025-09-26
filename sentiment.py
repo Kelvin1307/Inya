@@ -38,7 +38,7 @@ def upsell_hint(text, sentiment):
         return "Focus on renewal first; avoid aggressive upsell."
 
 
-@app.route('/analyze', methods=['POST'])
+@sentiment_bp.route("/analyze", methods=["POST"])
 def analyze():
     data = request.get_json()
     if not data or 'text' not in data:
