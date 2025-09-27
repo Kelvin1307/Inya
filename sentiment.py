@@ -10,7 +10,7 @@ from textblob import TextBlob
 
 app = Flask(__name__)
 
-@app.route("/analyze", methods=["POST"])
+@sentiment_bp.route("/analyze", methods=["POST"])
 def analyze_sentiment(text):
     try:
         # Get JSON input
